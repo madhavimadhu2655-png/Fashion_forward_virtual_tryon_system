@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     app_name: str = "Fashion Forward API"
     database_url: str = "postgresql://ff_user:ff_password@db:5432/fashion_forward"
     environment: str = "development"
+    cors_origins: str = "http://localhost:5173"
 
     # JWT auth — override JWT_SECRET via .env in any real deployment.
     # This default is fine for local dev only.

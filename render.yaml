@@ -1,0 +1,41 @@
+databases:
+  - name: fashion-forward-db
+    databaseName: fashion_forward
+    user: fashion_forward
+    plan: free
+    region: oregon
+
+services:
+  - type: web
+    name: fashion-forward-api
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerContext: .
+    dockerfilePath: ./backend/Dockerfile.render
+    autoDeployTrigger: "off"
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fashion-forward-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://fashion-forward-demo.onrender.com,http://localhost:5173
+
+  - type: web
+    name: fashion-forward-demo
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    rootDir: frontend
+    autoDeployTrigger: "off"
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_BACKEND_ORIGIN
+        value: https://fashion-forward-api.onrender.com

@@ -2,6 +2,14 @@
 
 Project scaffold: React + FastAPI + PostgreSQL, wired together with a health check.
 
+## Public demo
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2Fmadhavimadhu2655-png%2FFashion_forward_virtual_tryon_system)
+
+Use the button to create the frontend, API, and database in your Render account.
+After deployment completes, open the `fashion-forward-demo` Static Site URL in
+your Render dashboard. See [docs/V2_REDESIGN.md](docs/V2_REDESIGN.md) for details.
+
 ## Run
 
 1. `cp .env.example .env`

@@ -10,6 +10,20 @@ docker compose exec backend alembic upgrade head      # applies migrations, incl
 docker compose exec backend python -m app.run_seed     # seeds, or re-syncs photo paths on an existing DB
 ```
 
+## Public demo on Render
+
+The repository includes a Render Blueprint at `render.yaml`. In Render, choose
+**New → Blueprint**, connect the GitHub repository, and deploy the Blueprint.
+It creates the PostgreSQL database, API service, and frontend static site;
+database migrations and product seeding run when the API starts. The frontend
+service is named `fashion-forward-demo`; its `onrender.com` URL is available
+after Render finishes deploying.
+
+The Blueprint generates the JWT secret and configures the frontend/API CORS
+origins. Keep `.env` and all local credentials out of GitHub. The AI photo
+try-on worker is not deployed by this Blueprint; the rest of the application
+is available subject to the selected Render plan and service limits.
+
 Without Docker (what was used for verification): Python 3.11 with
 `backend/requirements.txt`, then from `backend/`:
 
