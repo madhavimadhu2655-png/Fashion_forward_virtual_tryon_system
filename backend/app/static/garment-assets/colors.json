@@ -1,0 +1,23 @@
+{
+  "_about": "Which catalogue colour each generic tryon.png actually depicts. Verified by visual inspection of every cutout on 2026-10-19. A product's other colours have NO exact garment reference until a tryon-<colour>.png is added; the AI model is never given a different-coloured garment. Edit this file if you replace a tryon.png.",
+  "CT001": "Black",
+  "CT002": "Black",
+  "CT003": "Emerald",
+  "CT004": "White",
+  "CT005": "White",
+  "CT006": "Multicolor",
+  "CT007": "Burgundy",
+  "CT008": "Black",
+  "CT009": "Gold",
+  "CT010": "Black",
+  "CT011": "Beige",
+  "CT012": "Pink",
+  "CT013": "Multicolor",
+  "CT014": "Black",
+  "CT015": "Black",
+  "CT016": "Light Blue",
+  "CT017": "Cream",
+  "CT018": "White",
+  "CT019": "Multicolor",
+  "CT020": "Black"
+}

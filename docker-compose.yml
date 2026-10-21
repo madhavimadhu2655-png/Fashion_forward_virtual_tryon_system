@@ -1,0 +1,88 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ff_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ff_password}
+      POSTGRES_DB: ${POSTGRES_DB:-fashion_forward}
+    ports:
+      - "5433:5432"
+    volumes:
+      - ff_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ff_user}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://ff_user:ff_password@db:5432/fashion_forward}
+      JWT_SECRET: ${JWT_SECRET:-dev-only-insecure-secret-change-me}
+      CATVTON_WORKER_URL: ${CATVTON_WORKER_URL:-}
+      CATVTON_WORKER_TOKEN: ${CATVTON_WORKER_TOKEN:-}
+      CATVTON_NONCOMMERCIAL_USE_CONFIRMED: ${CATVTON_NONCOMMERCIAL_USE_CONFIRMED:-false}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./database:/database
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m,mode=1777
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+  catvton:
+    profiles: ["ai"]
+    build:
+      context: ./backend
+      dockerfile: ai_runtime/Dockerfile
+    environment:
+      CATVTON_REPO_PATH: /opt/CatVTON
+      CATVTON_WORKER_TOKEN: ${CATVTON_WORKER_TOKEN:-}
+      CATVTON_MIXED_PRECISION: ${CATVTON_MIXED_PRECISION:-bf16}
+      CATVTON_CHECKPOINT_REPO: ${CATVTON_CHECKPOINT_REPO:-zhengchong/CatVTON}
+      CATVTON_BASE_MODEL_PATH: ${CATVTON_BASE_MODEL_PATH:-stable-diffusion-v1-5/stable-diffusion-inpainting}
+      HF_TOKEN: ${HF_TOKEN:-}
+      HF_HOME: /model-cache
+    volumes:
+      - ${CATVTON_REPO_PATH:-./catvton-source}:/opt/CatVTON:ro
+      - catvton_model_cache:/model-cache
+    expose:
+      - "8001"
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=256m,mode=1777
+    command:
+      - /bin/bash
+      - -lc
+      - >-
+        conda run --no-capture-output -n catvton pip install --no-cache-dir -r /opt/CatVTON/requirements.txt &&
+        conda run --no-capture-output -n catvton python -m uvicorn ai_runtime.app:app --host 0.0.0.0 --port 8001
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+volumes:
+  ff_postgres_data:
+  catvton_model_cache:
